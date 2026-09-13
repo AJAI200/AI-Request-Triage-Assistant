@@ -1,0 +1,75 @@
+@startuml ER_Diagram
+!theme plain
+top to bottom direction
+skinparam linetype ortho
+skinparam monochrome false
+skinparam packageStyle rectangle
+skinparam shadowing false
+
+entity "User" as user {
+  * id : INTEGER <<PK>>
+  --
+  * username : VARCHAR(50) <<UNIQUE>>
+  * hashed_password : VARCHAR(255)
+  * created_at : DATETIME
+}
+
+entity "Category" as category {
+  * id : INTEGER <<PK>>
+  --
+  * name : VARCHAR(50) <<UNIQUE>>
+  * description : VARCHAR(255)
+}
+
+entity "Owner" as owner {
+  * id : INTEGER <<PK>>
+  --
+  * name : VARCHAR(50) <<UNIQUE>>
+  * department : VARCHAR(100)
+}
+
+entity "TriageRequest" as triage_request {
+  * id : INTEGER <<PK>>
+  --
+  * raw_text : TEXT
+  * status : VARCHAR(20)
+  * process_time_ms : FLOAT
+  * created_at : DATETIME
+}
+
+entity "Classification" as classification {
+  * id : INTEGER <<PK>>
+  --
+  * request_id : INTEGER <<FK>>
+  * summary : TEXT
+  * category_id : INTEGER <<FK>>
+  * priority : VARCHAR(20)
+  * priority_reason : TEXT
+  * owner_id : INTEGER <<FK>>
+  * created_at : DATETIME
+}
+
+entity "ResponseDraft" as response_draft {
+  * id : INTEGER <<PK>>
+  --
+  * request_id : INTEGER <<FK>>
+  * draft_response : TEXT
+  * created_at : DATETIME
+}
+
+entity "ErrorLog" as error_log {
+  * id : INTEGER <<PK>>
+  --
+  * error_message : TEXT
+  * stack_trace : TEXT
+  * endpoint : VARCHAR(100)
+  * process_time_ms : FLOAT
+  * created_at : DATETIME
+}
+
+triage_request ||--o| classification : "1 : 0..1"
+triage_request ||--o| response_draft : "1 : 0..1"
+category ||--o{ classification : "1 : 0..N"
+owner ||--o{ classification : "1 : 0..N"
+
+@enduml

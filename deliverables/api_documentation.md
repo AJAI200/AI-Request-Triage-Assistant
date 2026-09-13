@@ -141,7 +141,7 @@ Submits raw customer or internal text request for automated LLM classification, 
 }
 ```
 
-#### Success Response (`201 Created`):
+#### Success Response — Fully Classified (`201 Created`):
 ```json
 {
   "id": 1,
@@ -156,6 +156,24 @@ Submits raw customer or internal text request for automated LLM classification, 
   "process_time_ms": 1245.82
 }
 ```
+
+#### Success Response — Graceful Fallback (`201 Created` with `status: "needs_review"`):
+*Triggered automatically when the LLM returns an API error (e.g. 429 Rate Limit) or malformed output.*
+```json
+{
+  "id": 2,
+  "status": "needs_review",
+  "raw_text": "The system experienced a temporary LLM API rate limit during automated parsing.",
+  "summary": "Request received and queued for manual human triage.",
+  "category": "Other",
+  "priority": "Medium",
+  "priority_reason": "Automated triage pipeline encountered a transient processing error.",
+  "owner": "Client Success",
+  "draft_response": "Hello, your request has been logged and queued for manual review by our team.",
+  "process_time_ms": 842.15
+}
+```
+
 
 #### Exception / Error Responses:
 
