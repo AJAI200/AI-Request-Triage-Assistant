@@ -30,22 +30,3 @@ def test_post_triage_valid_request():
     assert data["status"] in ["classified", "needs_review"]
     assert "id" in data
 
-def test_get_triage_by_id_success():
-    # Post a request first
-    post_res = client.post("/triage", json={"text": MOCK_REQUESTS[3]["text"]}, headers=AUTH_HEADERS)
-    assert post_res.status_code in [200, 201]
-    req_id = post_res.json()["id"]
-
-    # Get by ID
-    get_res = client.get(f"/triage/{req_id}", headers=AUTH_HEADERS)
-    assert get_res.status_code == 200
-    assert get_res.json()["id"] == req_id
-
-def test_get_triage_not_found():
-    response = client.get("/triage/999999", headers=AUTH_HEADERS)
-    assert response.status_code == 404
-
-def test_get_triage_list():
-    response = client.get("/triage", headers=AUTH_HEADERS)
-    assert response.status_code == 200
-    assert isinstance(response.json(), list)

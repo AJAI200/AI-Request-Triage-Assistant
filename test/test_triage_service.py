@@ -1,7 +1,7 @@
 import pytest
 import pytest_asyncio
 from src.database import init_db
-from src.services.triage_service import run_triage, get_triage_by_id, list_triaged_requests
+from src.services.triage_service import run_triage
 from test.fixtures.mock_requests import MOCK_REQUESTS
 
 @pytest_asyncio.fixture(autouse=True)
@@ -15,11 +15,6 @@ async def test_run_triage_service_success():
     assert result["status"] in ["classified", "needs_review"]
     assert "id" in result
 
-    # Verify retrieval by ID
-    stored = await get_triage_by_id(result["id"])
-    assert stored is not None
-    assert stored["id"] == result["id"]
-
 @pytest.mark.asyncio
 async def test_run_triage_service_needs_review_fallback():
     from unittest.mock import patch
@@ -31,12 +26,3 @@ async def test_run_triage_service_needs_review_fallback():
         assert "message" in result
         assert result["id"] is not None
 
-        # Verify retrieval of needs_review request
-        stored = await get_triage_by_id(result["id"])
-        assert stored["status"] == "needs_review"
-        assert stored["message"] == "Could not automatically classify this request. Please review manually."
-
-@pytest.mark.asyncio
-async def test_list_triaged_requests():
-    results = await list_triaged_requests(limit=10)
-    assert isinstance(results, list)

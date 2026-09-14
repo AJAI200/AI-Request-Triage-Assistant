@@ -76,13 +76,4 @@ async def test_auth_route_login_failure():
             await login(payload, db=session, user_repo=repo)
         assert exc_info.value.status_code == 401
 
-@pytest.mark.asyncio
-async def test_triage_route_not_found():
-    from src.routes.triage_routes import get_triage
-    from src.repositories.triage_repository import get_triage_repository
-    from fastapi import HTTPException
-    async with AsyncSessionLocal() as session:
-        triage_repo = get_triage_repository()
-        with pytest.raises(HTTPException) as exc_info:
-            await get_triage(99999999, db=session, triage_repo=triage_repo)
-        assert exc_info.value.status_code == 404
+

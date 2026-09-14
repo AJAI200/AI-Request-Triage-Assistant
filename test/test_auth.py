@@ -32,17 +32,17 @@ def test_bearer_token_authentication_success():
     login_res = client.post("/auth/login", json={"username": "admin", "password": "password123"})
     token = login_res.json()["access_token"]
 
-    response = client.get("/triage", headers={"Authorization": f"Bearer {token}"})
-    assert response.status_code == 200
+    response = client.post("/triage", json={"text": "Test request for auth verification"}, headers={"Authorization": f"Bearer {token}"})
+    assert response.status_code in [200, 201]
     assert "X-Process-Time" in response.headers
 
 def test_bearer_token_authentication_invalid():
-    response = client.get("/triage", headers={"Authorization": "Bearer invalid_token_123"})
+    response = client.post("/triage", json={"text": "Test request"}, headers={"Authorization": "Bearer invalid_token_123"})
     assert response.status_code == 401
     assert "X-Process-Time" in response.headers
 
 def test_invalid_api_key_header():
-    response = client.get("/triage", headers={"X-API-Key": "invalid_secret_key"})
+    response = client.post("/triage", json={"text": "Test request"}, headers={"X-API-Key": "invalid_secret_key"})
     assert response.status_code == 401
     assert "X-Process-Time" in response.headers
 

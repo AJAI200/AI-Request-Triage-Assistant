@@ -13,10 +13,9 @@
 3. [Global Response Headers](#global-response-headers)
 4. [API Endpoints Reference](#api-endpoints-reference)
    - [1. User Authentication (`POST /auth/login`)](#1-user-authentication-post-authlogin)
-   - [2. Submit Triage Request (`POST /triage`)](#2-submit-triage-request-post-triage)
-   - [3. Get Triage Request by ID (`GET /triage/{request_id}`)](#3-get-triage-request-by-id-get-triagerequest_id)
-   - [4. List Historical Triages (`GET /triage`)](#4-list-historical-triages-get-triage)
-   - [5. System Dashboard UI (`GET /`)](#5-system-dashboard-ui-get-)
+   - [2. User Registration (`POST /auth/register`)](#2-user-registration-post-authregister)
+   - [3. Submit Triage Request (`POST /triage`)](#3-submit-triage-request-post-triage)
+   - [4. System Dashboard UI (`GET /`)](#4-system-dashboard-ui-get-)
 5. [Complete Exception & Error Scenario Matrix](#complete-exception--error-scenario-matrix)
 6. [Global Error Envelope & DB Error Logging](#global-error-envelope--db-error-logging)
 
@@ -226,130 +225,7 @@ Submits raw customer or internal text request for automated LLM classification, 
 
 ---
 
-### 3. Get Triage Request by ID (`GET /triage/{request_id}`)
-
-Retrieves a single historical triaged request record by integer ID.
-
-- **URL**: `/triage/{request_id}`
-- **Method**: `GET`
-- **Authentication**: JWT Bearer Token OR API Key Header
-- **Path Parameters**:
-  - `request_id` (integer, required): Database primary key ID (e.g. `1`).
-
-#### Success Response (`200 OK`):
-```json
-{
-  "id": 1,
-  "status": "classified",
-  "raw_text": "Invoice NS-1048 appears to include the same implementation charge twice...",
-  "summary": "Invoice NS-1048 contains a duplicate implementation charge...",
-  "category": "Billing",
-  "priority": "High",
-  "priority_reason": "Duplicate charge query with an upcoming payment processing deadline on Friday.",
-  "owner": "Finance",
-  "draft_response": "Hi there, thank you for bringing this duplicate charge...",
-  "process_time_ms": 1245.82
-}
-```
-
-#### Exception / Error Responses:
-
-##### A. 404 Not Found (Invalid ID)
-```json
-{
-  "detail": "Triage request #999 not found."
-}
-```
-
-##### B. 401 Unauthorized
-```json
-{
-  "detail": "Invalid token or API key."
-}
-```
-
-##### C. 422 Unprocessable Entity (Non-integer ID)
-```json
-{
-  "detail": [
-    {
-      "type": "int_parsing",
-      "loc": ["path", "request_id"],
-      "msg": "Input should be a valid integer, unable to parse string as an integer",
-      "input": "abc"
-    }
-  ]
-}
-```
-
----
-
-### 4. List Historical Triages (`GET /triage`)
-
-Retrieves a paginated list of historical triaged requests.
-
-- **URL**: `/triage`
-- **Method**: `GET`
-- **Authentication**: JWT Bearer Token OR API Key Header
-- **Query Parameters**:
-  - `limit` (integer, optional): Maximum items to return (Default: `50`, Min: `1`, Max: `200`).
-
-#### Success Response (`200 OK`):
-```json
-[
-  {
-    "id": 2,
-    "status": "classified",
-    "raw_text": "The client portal has been unavailable since this morning...",
-    "summary": "Client portal downtime causing complete staff lockout.",
-    "category": "System Outage",
-    "priority": "Urgent",
-    "priority_reason": "Critical operational outage locking staff out of customer records.",
-    "owner": "IT Support",
-    "draft_response": "Our IT Engineering team is actively investigating the client portal outage...",
-    "process_time_ms": 980.14
-  },
-  {
-    "id": 1,
-    "status": "classified",
-    "raw_text": "Invoice NS-1048 appears to include the same implementation charge twice...",
-    "summary": "Invoice NS-1048 contains a duplicate implementation charge...",
-    "category": "Billing",
-    "priority": "High",
-    "priority_reason": "Duplicate charge query with an upcoming payment processing deadline on Friday.",
-    "owner": "Finance",
-    "draft_response": "Hi there, thank you for bringing this duplicate charge...",
-    "process_time_ms": 1245.82
-  }
-]
-```
-
-#### Exception / Error Responses:
-
-##### A. 422 Unprocessable Entity (`limit` out of bounds)
-```json
-{
-  "detail": [
-    {
-      "type": "less_than_equal",
-      "loc": ["query", "limit"],
-      "msg": "Input should be less than or equal to 200",
-      "input": 500
-    }
-  ]
-}
-```
-
-##### B. 401 Unauthorized
-```json
-{
-  "detail": "Missing Authorization header or X-API-Key."
-}
-```
-
----
-
-### 5. System Dashboard UI (`GET /`)
+### 4. System Dashboard UI (`GET /`)
 
 Serves the web dashboard application interface.
 
