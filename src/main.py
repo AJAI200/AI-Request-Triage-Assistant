@@ -51,9 +51,10 @@ async def global_exception_handler(request: Request, exc: Exception):
     )
 
 # Mount React frontend build assets
-project_root = os.path.dirname(os.path.dirname(__file__))
-react_dist = os.path.join(project_root, "frontend", "dist")
-react_assets = os.path.join(react_dist, "assets")
+base_dir = os.path.dirname(os.path.abspath(__file__))
+project_root = os.path.dirname(base_dir)
+react_dist = os.path.abspath(os.path.join(project_root, "frontend", "dist"))
+react_assets = os.path.abspath(os.path.join(react_dist, "assets"))
 
 if os.path.exists(react_assets):
     app.mount("/assets", StaticFiles(directory=react_assets), name="react_assets")
