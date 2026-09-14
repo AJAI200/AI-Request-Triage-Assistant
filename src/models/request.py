@@ -14,7 +14,7 @@ class Request(Base):
     prompt_tokens = Column(Integer, nullable=True)
     completion_tokens = Column(Integer, nullable=True)
     total_tokens = Column(Integer, nullable=True)
-    received_at = Column(DateTime, default=lambda: datetime.datetime.now(datetime.timezone.utc), nullable=False)
+    received_at = Column(DateTime(timezone=True), default=lambda: datetime.datetime.now(datetime.timezone.utc), nullable=False)
 
     classification = relationship("Classification", uselist=False, back_populates="request", cascade="all, delete-orphan")
     draft = relationship("ResponseDraft", uselist=False, back_populates="request", cascade="all, delete-orphan")

@@ -9,6 +9,6 @@ class ResponseDraft(Base):
     request_id = Column(Integer, ForeignKey("request.id"), unique=True, nullable=False)
     draft_text = Column(Text, nullable=False)
     final_text = Column(Text, nullable=True)
-    sent_at = Column(DateTime, nullable=True)
+    sent_at = Column(DateTime(timezone=True), nullable=True)
 
     request = relationship("Request", back_populates="draft")
