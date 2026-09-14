@@ -34,3 +34,10 @@ frontend/dist-ssr/
 .DS_Store
 *.swp
 *.log
+
+# Archives & Large Bundles
+*.zip
+*.tar.gz
+
+# Deliverables & Local Notes
+deliverables/

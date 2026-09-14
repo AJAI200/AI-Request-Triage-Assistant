@@ -12,4 +12,4 @@ class ErrorLog(Base):
     error_message = Column(Text, nullable=False)
     stack_trace = Column(Text, nullable=True)
     process_time_ms = Column(Float, nullable=True)
-    created_at = Column(DateTime, default=datetime.datetime.utcnow, nullable=False)
+    created_at = Column(DateTime, default=lambda: datetime.datetime.now(datetime.timezone.utc), nullable=False)

@@ -35,7 +35,7 @@ def verify_password(plain_password: str, hashed_password: str) -> bool:
 
 def create_access_token(user_id: int, username: str, role: str) -> str:
     logger.debug("Entering create_access_token")
-    expire = datetime.datetime.utcnow() + datetime.timedelta(minutes=settings.TOKEN_EXPIRE_MINUTES)
+    expire = datetime.datetime.now(datetime.timezone.utc) + datetime.timedelta(minutes=settings.TOKEN_EXPIRE_MINUTES)
     payload = {
         "sub": str(user_id),
         "username": username,

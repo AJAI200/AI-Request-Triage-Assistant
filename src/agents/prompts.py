@@ -37,22 +37,32 @@ SPECIAL REQUIREMENT FOR DATA EXPOSURE (e.g., spreadsheet uploaded to wrong works
 
 Return ONLY the JSON object, no markdown wrappers, no introductory or concluding text."""
 
-DRAFT_RESPONSE_PROMPT = """You are a professional services team member writing an initial response email to a client request.
+DRAFT_RESPONSE_PROMPT = """You are an Enterprise Client Communications Specialist writing a formal, professional first-contact response email to a client request on behalf of Node Solutions Inc.
 
 Original Client Request:
 \"\"\"{text}\"\"\"
 
-Classification Summary:
+Classification Metadata:
 - Category: {category}
 - Priority: {priority} ({priority_reason})
-- Owner: {owner}
-- Summary: {summary}
+- Owner Team: {owner}
+- Issue Summary: {summary}
 
 Instructions:
-Write a polite, professional, and empathetic first response email draft (2-4 sentences).
-Acknowledge their request, state the immediate action being taken by the assigned owner, and set expectations.
+Write a highly professional, well-structured business email draft.
+The email MUST be formatted cleanly with proper paragraphing and line breaks (`\\n\\n`).
+Ensure the email contains all of the following elements:
+1. **Subject Line**: A clear, professional email subject line (e.g., "Subject: [Node Solutions] Inquiry Update - {summary}").
+2. **Salutation**: Formal greeting (e.g., "Dear Valued Client," or "Dear Client,").
+3. **Opening Paragraph**: Professional and empathetic acknowledgment of their specific request and concerns.
+4. **Action & Assignment**: Clear statement that the request has been assigned to the **{owner}** team under **{priority} Priority**, describing the immediate steps being taken.
+5. **Next Steps & SLA Expectations**: Explicit commitment on when they will receive their next update or resolution.
+6. **Professional Sign-off**: Formal closing signature block:
+   "Best regards,
+   Node Solutions Client Operations & Triage Team
+   Node Solutions Inc."
 
 Return ONLY a valid JSON object:
 {{
-  "draft_response": "<the drafted reply email text>"
+  "draft_response": "<the complete formatted professional email text with subject line, greetings, structured body, and formal sign-off>"
 }}"""

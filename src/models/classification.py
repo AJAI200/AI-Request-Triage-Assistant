@@ -13,7 +13,7 @@ class Classification(Base):
     priority = Column(String, nullable=False)  # Low | Medium | High | Urgent
     priority_reason = Column(Text, nullable=False)
     owner_id = Column(Integer, ForeignKey("owner.id"), nullable=False)
-    created_at = Column(DateTime, default=datetime.datetime.utcnow, nullable=False)
+    created_at = Column(DateTime, default=lambda: datetime.datetime.now(datetime.timezone.utc), nullable=False)
 
     request = relationship("Request", back_populates="classification")
     category = relationship("Category")

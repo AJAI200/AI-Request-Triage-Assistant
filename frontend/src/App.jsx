@@ -9,6 +9,7 @@ import TriageResult from './components/TriageResult';
 import Toast from './components/Toast';
 import WaterRippleCanvas from './components/WaterRippleCanvas';
 import CustomCursor from './components/CustomCursor';
+import { useCanvasSize } from './hooks/useCanvasSize';
 import { useAuth } from './context/AuthContext';
 import { submitTriage } from './services/api';
 import { AlertCircle, X } from 'lucide-react';

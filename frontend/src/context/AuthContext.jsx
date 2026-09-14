@@ -8,6 +8,12 @@ export function AuthProvider({ children }) {
   const [user, setUser] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
 
+  const logout = () => {
+    localStorage.removeItem("jwt_token");
+    setJwtToken("");
+    setUser(null);
+  };
+
   useEffect(() => {
     if (jwtToken) {
       const claims = decodeJwt(jwtToken);
@@ -31,12 +37,6 @@ export function AuthProvider({ children }) {
   const loginToken = (token) => {
     localStorage.setItem("jwt_token", token);
     setJwtToken(token);
-  };
-
-  const logout = () => {
-    localStorage.removeItem("jwt_token");
-    setJwtToken("");
-    setUser(null);
   };
 
   return (

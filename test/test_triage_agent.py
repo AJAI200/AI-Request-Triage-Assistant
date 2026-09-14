@@ -68,7 +68,7 @@ async def test_draft_response():
         draft_res = await draft_response(req_01, classification)
     except Exception:
         draft_res = {
-            "draft_response": "Hello, thank you for reaching out. Our team has received your request regarding automation and will contact you shortly."
+            "draft_response": "Subject: [Node Solutions] Inquiry Update - Data Entry Automation\n\nDear Valued Client,\n\nThank you for reaching out to Node Solutions regarding your automation requirements.\n\nYour request has been assigned to our Sales Team under Medium Priority for detailed review. Our specialists are currently analyzing your operational workflow across your systems to prepare a tailored demonstration.\n\nWe will provide a formal proposal within 24 business hours.\n\nBest regards,\nNode Solutions Client Operations Team\nNode Solutions Inc."
         }
     assert "draft_response" in draft_res
     assert len(draft_res["draft_response"]) > 20

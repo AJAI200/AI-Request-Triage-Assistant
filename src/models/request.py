@@ -11,7 +11,7 @@ class Request(Base):
     channel = Column(String, nullable=True)
     status = Column(String, nullable=False, default="new")  # new | classified | needs_review
     process_time_ms = Column(Float, nullable=True)
-    received_at = Column(DateTime, default=datetime.datetime.utcnow, nullable=False)
+    received_at = Column(DateTime, default=lambda: datetime.datetime.now(datetime.timezone.utc), nullable=False)
 
     classification = relationship("Classification", uselist=False, back_populates="request", cascade="all, delete-orphan")
     draft = relationship("ResponseDraft", uselist=False, back_populates="request", cascade="all, delete-orphan")
