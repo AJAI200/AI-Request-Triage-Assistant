@@ -21,7 +21,7 @@ async def classify_and_route(
         if own_session:
             await db_session.close()
 
-    prompt = prompt_template.format(text=raw_text)
+    prompt = prompt_template.replace("{text}", raw_text)
     llm_res = await call_llm(prompt)
     
     if isinstance(llm_res, dict):
@@ -56,13 +56,14 @@ async def draft_response(
         if own_session:
             await db_session.close()
 
-    prompt = prompt_template.format(
-        text=raw_text,
-        category=classification.get("category", "Other"),
-        priority=classification.get("priority", "Medium"),
-        priority_reason=classification.get("priority_reason", ""),
-        owner=classification.get("owner", "Client Success"),
-        summary=classification.get("summary", ""),
+    prompt = (
+        prompt_template
+        .replace("{text}", raw_text)
+        .replace("{category}", str(classification.get("category", "Other")))
+        .replace("{priority}", str(classification.get("priority", "Medium")))
+        .replace("{priority_reason}", str(classification.get("priority_reason", "")))
+        .replace("{owner}", str(classification.get("owner", "Client Success")))
+        .replace("{summary}", str(classification.get("summary", "")))
     )
     llm_res = await call_llm(prompt)
 
