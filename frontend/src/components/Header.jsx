@@ -4,7 +4,7 @@ import { decodeJwt } from '../utils/jwt';
 
 export default function Header({ jwtToken, onOpenLogin, onLogout }) {
   const claims = jwtToken ? decodeJwt(jwtToken) : null;
-  const username = claims?.sub || claims?.username || '';
+  const username = claims?.username || claims?.sub || '';
   const role = claims?.role || 'user';
   const roleDisplay = username ? `${username} (${role})` : role;
 
