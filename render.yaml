@@ -4,16 +4,20 @@ services:
     env: python
     buildCommand: "bash build.sh"
     startCommand: "uvicorn src.main:app --host 0.0.0.0 --port $PORT"
+    disk:
+      name: sqlite-data
+      mountPath: /var/data
+      sizeGB: 1
     envVars:
       - key: PYTHON_VERSION
         value: 3.12.1
       - key: NODE_VERSION
         value: 20.11.0
+      - key: DATABASE_URL
+        value: sqlite+aiosqlite:////var/data/triage.db
       - key: GEMINI_API_KEY
         sync: false
       - key: GEMINI_MODEL
-        sync: false
-      - key: DATABASE_URL
         sync: false
       - key: JWT_SECRET_KEY
         sync: false
@@ -23,3 +27,4 @@ services:
         sync: false
       - key: API_KEY
         sync: false
+
