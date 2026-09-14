@@ -9,7 +9,7 @@ import TriageResult from './components/TriageResult';
 import Toast from './components/Toast';
 import WaterRippleCanvas from './components/WaterRippleCanvas';
 import CustomCursor from './components/CustomCursor';
-import { useCanvasSize } from './hooks/useCanvasSize';
+import { useAuth } from './context/AuthContext';
 import { submitTriage } from './services/api';
 import { AlertCircle, X } from 'lucide-react';
 
@@ -30,8 +30,7 @@ const SHARD_COLORS = [
 ];
 
 export default function App() {
-  const [jwtToken, setJwtToken] = useState(() => localStorage.getItem("jwt_token") || "");
-  const [isModalOpen, setIsModalOpen] = useState(false);
+  const { jwtToken, isModalOpen, setIsModalOpen, loginToken, logout } = useAuth();
   const [requestText, setRequestText] = useState("");
   const [selectedMockIdx, setSelectedMockIdx] = useState(null);
   const [loading, setLoading] = useState(false);
@@ -163,14 +162,12 @@ export default function App() {
   }, []);
 
   const handleLoginSuccess = (token, customMsg) => {
-    localStorage.setItem("jwt_token", token);
-    setJwtToken(token);
+    loginToken(token);
     showToast(customMsg || "Signed in successfully!");
   };
 
   const handleLogout = () => {
-    localStorage.removeItem("jwt_token");
-    setJwtToken("");
+    logout();
     showToast("Signed out. Session cleared.");
   };
 
@@ -232,8 +229,7 @@ export default function App() {
       const res = await submitTriage(requestText.trim(), jwtToken, abortRef.current.signal);
 
       if (res.status === 401) {
-        localStorage.removeItem("jwt_token");
-        setJwtToken("");
+        logout();
         setIsModalOpen(true);
         clearInterval(interval);
         clearTimeout(longWaitTimer);

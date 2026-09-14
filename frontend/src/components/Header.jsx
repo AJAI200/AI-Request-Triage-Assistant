@@ -1,12 +1,16 @@
 import React from 'react';
 import { Sparkles, KeyRound, LogOut, UserCheck } from 'lucide-react';
-import { decodeJwt } from '../utils/jwt';
+import { useAuth } from '../context/AuthContext';
 
-export default function Header({ jwtToken, onOpenLogin, onLogout }) {
-  const claims = jwtToken ? decodeJwt(jwtToken) : null;
-  const username = claims?.username || claims?.sub || '';
-  const role = claims?.role || 'user';
-  const roleDisplay = username ? `${username} (${role})` : role;
+export default function Header({ jwtToken: propJwt, onOpenLogin: propOpenLogin, onLogout: propLogout }) {
+  const auth = useAuth();
+  const jwtToken = auth?.jwtToken ?? propJwt;
+  const user = auth?.user;
+  const username = user?.username || '';
+  const role = user?.role || 'user';
+
+  const handleOpenLogin = auth?.setIsModalOpen ? () => auth.setIsModalOpen(true) : propOpenLogin;
+  const handleLogout = auth?.logout || propLogout;
 
   return (
     <header className="sticky top-0 z-40 bg-[#FFF8EE]/90 backdrop-blur-md border-b-2 border-[#FFE0B2]">
@@ -40,7 +44,7 @@ export default function Header({ jwtToken, onOpenLogin, onLogout }) {
 
               <button
                 type="button"
-                onClick={onLogout}
+                onClick={handleLogout}
                 className="text-xs font-extrabold text-[#2D1F17] bg-white hover:bg-[#FFF4E5] border-2 border-[#FFE0B2] px-4 py-2 rounded-full transition-all duration-150 flex items-center gap-1.5 active:scale-95 shadow-sm hover:border-[#FF5C00]"
               >
                 <LogOut className="w-3.5 h-3.5 text-[#FF5C00]" />
@@ -50,7 +54,7 @@ export default function Header({ jwtToken, onOpenLogin, onLogout }) {
           ) : (
             <button
               type="button"
-              onClick={onOpenLogin}
+              onClick={handleOpenLogin}
               className="pill-btn btn-orange text-xs font-extrabold px-5 py-2.5 flex items-center gap-2 shadow-[0_8px_20px_rgba(255,92,0,0.25)] active:scale-95"
             >
               <KeyRound className="w-4 h-4" />
