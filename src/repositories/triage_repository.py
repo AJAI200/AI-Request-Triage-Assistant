@@ -28,6 +28,20 @@ class TriageRepository:
         logger.debug("Exiting TriageRepository.create_request")
         return req
 
+    async def update_tokens(
+        self,
+        session: AsyncSession,
+        req: Request,
+        prompt_tokens: int,
+        completion_tokens: int,
+        total_tokens: int
+    ) -> None:
+        logger.debug("Entering TriageRepository.update_tokens")
+        req.prompt_tokens = prompt_tokens
+        req.completion_tokens = completion_tokens
+        req.total_tokens = total_tokens
+        logger.debug("Exiting TriageRepository.update_tokens")
+
     async def add_classification(
         self,
         session: AsyncSession,

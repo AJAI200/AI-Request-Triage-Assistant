@@ -14,7 +14,7 @@ try:
 except ImportError:
     HAS_GENAI_SDK = False
 
-async def _call_sdk(prompt: str, model_name: str, api_key: str) -> str:
+async def _call_sdk(prompt: str, model_name: str, api_key: str) -> dict:
     logger.debug("Entering _call_sdk")
     client = genai.Client(api_key=api_key)
     response = await asyncio.to_thread(
@@ -24,12 +24,21 @@ async def _call_sdk(prompt: str, model_name: str, api_key: str) -> str:
     )
     if response and response.text:
         logger.debug("Exiting _call_sdk successfully")
-        return response.text
+        usage = getattr(response, "usage_metadata", None)
+        p_tokens = getattr(usage, "prompt_token_count", 0) if usage else 0
+        c_tokens = getattr(usage, "candidates_token_count", 0) if usage else 0
+        t_tokens = getattr(usage, "total_token_count", 0) if usage else (p_tokens + c_tokens)
+        return {
+            "text": response.text,
+            "prompt_tokens": p_tokens,
+            "completion_tokens": c_tokens,
+            "total_tokens": t_tokens
+        }
     logger.warning("Empty response returned by Gemini SDK")
     logger.debug("Exiting _call_sdk with LLMClientError")
     raise LLMClientError("Empty response returned by Gemini SDK")
 
-async def _call_rest(prompt: str, model_name: str, api_key: str) -> str:
+async def _call_rest(prompt: str, model_name: str, api_key: str) -> dict:
     logger.debug("Entering _call_rest")
     url = f"https://generativelanguage.googleapis.com/v1beta/models/{model_name}:generateContent?key={api_key}"
     headers = {"Content-Type": "application/json"}
@@ -48,8 +57,17 @@ async def _call_rest(prompt: str, model_name: str, api_key: str) -> str:
         data = res.json()
         try:
             text = data["candidates"][0]["content"]["parts"][0]["text"]
+            usage = data.get("usageMetadata", {})
+            p_tokens = usage.get("promptTokenCount", 0)
+            c_tokens = usage.get("candidatesTokenCount", 0)
+            t_tokens = usage.get("totalTokenCount", p_tokens + c_tokens)
             logger.debug("Exiting _call_rest successfully")
-            return text
+            return {
+                "text": text,
+                "prompt_tokens": p_tokens,
+                "completion_tokens": c_tokens,
+                "total_tokens": t_tokens
+            }
         except (KeyError, IndexError) as err:
             logger.warning(f"Malformed REST payload shape: {data}")
             logger.debug("Exiting _call_rest with LLMClientError")

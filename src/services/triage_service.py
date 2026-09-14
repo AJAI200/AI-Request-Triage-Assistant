@@ -28,9 +28,18 @@ async def run_triage(
         await session.commit()
         await session.refresh(req)
 
-        # AI pipeline calls
-        classification = await classify_and_route(raw_text)
-        draft = await draft_response(raw_text, classification)
+        # AI pipeline calls with dynamic prompt repository lookup
+        classification = await classify_and_route(raw_text, session=session)
+        draft = await draft_response(raw_text, classification, session=session)
+
+        # Aggregate token usage across pipeline steps
+        c_tok = classification.get("_tokens", {})
+        d_tok = draft.get("_tokens", {})
+        prompt_tokens = c_tok.get("prompt_tokens", 0) + d_tok.get("prompt_tokens", 0)
+        completion_tokens = c_tok.get("completion_tokens", 0) + d_tok.get("completion_tokens", 0)
+        total_tokens = c_tok.get("total_tokens", 0) + d_tok.get("total_tokens", 0)
+
+        await triage_repo.update_tokens(session, req, prompt_tokens, completion_tokens, total_tokens)
 
         # Lookups & storage via Repository Layer
         cat_id = await lookup_category_id(session, classification["category"])
@@ -65,6 +74,9 @@ async def run_triage(
             "owner": classification["owner"],
             "draft_response": draft["draft_response"],
             "process_time_ms": process_time_ms,
+            "prompt_tokens": prompt_tokens,
+            "completion_tokens": completion_tokens,
+            "total_tokens": total_tokens,
         }
 
     except (JSONParseError, ValidationError, LLMClientError, ValueError) as exc:

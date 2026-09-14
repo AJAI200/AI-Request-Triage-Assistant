@@ -12,3 +12,7 @@ class TriageResponseDTO(BaseModel):
     owner: Optional[str] = None
     draft_response: Optional[str] = None
     message: Optional[str] = None  # Populated only when status == "needs_review"
+    process_time_ms: Optional[float] = None
+    prompt_tokens: Optional[int] = None
+    completion_tokens: Optional[int] = None
+    total_tokens: Optional[int] = None
