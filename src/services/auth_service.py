@@ -89,6 +89,28 @@ async def authenticate_user(
         if own_session:
             await session.close()
 
+import re
+
+SPECIAL_CHARS = set("#$%&*()!@")
+EMAIL_REGEX = r"^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$"
+
+def validate_registration_fields(username: str, password: str) -> None:
+    if "@" in username and not re.match(EMAIL_REGEX, username):
+        raise AuthenticationError("Invalid email address format.")
+    
+    if len(password) < 8:
+        raise AuthenticationError("Password must be at least 8 characters long.")
+    if not re.search(r"[A-Z]", password):
+        raise AuthenticationError("Password must contain at least 1 uppercase letter (A-Z).")
+    if not re.search(r"[a-z]", password):
+        raise AuthenticationError("Password must contain at least 1 lowercase letter (a-z).")
+    if not re.search(r"[0-9]", password):
+        raise AuthenticationError("Password must contain at least 1 numeric digit (0-9).")
+    
+    special_count = sum(1 for char in password if char in SPECIAL_CHARS)
+    if special_count < 3:
+        raise AuthenticationError("Password must contain at least 3 special characters from #$%&*()!@")
+
 async def register_user(
     username: str,
     password: str,
@@ -101,6 +123,8 @@ async def register_user(
     user_repo = user_repo or get_user_repository()
 
     try:
+        validate_registration_fields(username, password)
+
         existing = await user_repo.get_by_username(session, username)
         if existing:
             logger.warning(f"Registration failed: username {username} already exists")
@@ -125,4 +149,5 @@ async def register_user(
     finally:
         if own_session:
             await session.close()
+
 

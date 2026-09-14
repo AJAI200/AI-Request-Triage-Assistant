@@ -1,6 +1,8 @@
 import React, { useState } from 'react';
-import { KeyRound, X, AlertCircle, Sparkles, LogIn, UserPlus } from 'lucide-react';
+import { KeyRound, X, AlertCircle, LogIn, UserPlus, CheckCircle2, Circle } from 'lucide-react';
 import { login, register } from '../services/api';
+
+const EMAIL_REGEX = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
 
 export default function JwtModal({ isOpen, onClose, onLoginSuccess }) {
   const [activeTab, setActiveTab] = useState('login'); // 'login' | 'register'
@@ -11,10 +13,34 @@ export default function JwtModal({ isOpen, onClose, onLoginSuccess }) {
 
   if (!isOpen) return null;
 
+  // Validation checks for registration
+  const passLength = password.length >= 8;
+  const passUpper = /[A-Z]/.test(password);
+  const passLower = /[a-z]/.test(password);
+  const passNumber = /[0-9]/.test(password);
+  const passSpecialCount = (password.match(/[#$%&*()!@]/g) || []).length;
+  const passSpecial = passSpecialCount >= 3;
+  const isPasswordValid = passLength && passUpper && passLower && passNumber && passSpecial;
+
+  const isEmailFormat = username.includes('@');
+  const isEmailValid = isEmailFormat ? EMAIL_REGEX.test(username) : username.trim().length >= 3;
+
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setLoading(true);
     setError(null);
+
+    if (activeTab === 'register') {
+      if (isEmailFormat && !EMAIL_REGEX.test(username)) {
+        setError('Please enter a valid email address (e.g. user@gmail.com).');
+        return;
+      }
+      if (!isPasswordValid) {
+        setError('Password does not meet the complexity requirements.');
+        return;
+      }
+    }
+
+    setLoading(true);
 
     try {
       const authFn = activeTab === 'login' ? login : register;
@@ -36,14 +62,6 @@ export default function JwtModal({ isOpen, onClose, onLoginSuccess }) {
       setLoading(false);
     }
   };
-
-  const fillDemoCredentials = () => {
-    setActiveTab('login');
-    setUsername('admin');
-    setPassword('password123');
-  };
-
-  const isDev = import.meta.env.DEV;
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-md p-4 animate-in fade-in duration-200">
@@ -104,14 +122,14 @@ export default function JwtModal({ isOpen, onClose, onLoginSuccess }) {
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
             <label className="block text-xs font-bold uppercase tracking-wider text-[#7A6B63] mb-1.5">
-              Username
+              Username or Email
             </label>
             <input
               type="text"
               value={username}
               onChange={(e) => setUsername(e.target.value)}
               required
-              placeholder="Enter your username"
+              placeholder="e.g. user@gmail.com"
               className="w-full bg-[#FFF8EE] border-2 border-[#FFE0B2] rounded-xl px-4 py-2.5 text-sm font-semibold text-[#2D1F17] placeholder-zinc-400"
             />
           </div>
@@ -130,24 +148,34 @@ export default function JwtModal({ isOpen, onClose, onLoginSuccess }) {
             />
           </div>
 
-          {isDev && activeTab === 'login' && (
-            <div className="flex items-center justify-between text-xs text-[#7A6B63] pt-1">
-              <button
-                type="button"
-                onClick={fillDemoCredentials}
-                className="text-[#FF5C00] hover:underline flex items-center gap-1 font-bold"
-              >
-                <Sparkles className="w-3.5 h-3.5" />
-                <span>Use Demo Credentials</span>
-              </button>
+          {/* Real-time Password Requirements Checklist (Register Mode) */}
+          {activeTab === 'register' && (
+            <div className="bg-[#FFF8EE] border border-[#FFE0B2] p-3.5 rounded-xl space-y-1.5 text-xs">
+              <span className="block font-bold text-[#7A6B63] mb-1">Password Requirements:</span>
+              <div className={`flex items-center gap-2 ${passLength ? "text-emerald-700 font-semibold" : "text-zinc-500"}`}>
+                {passLength ? <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600 flex-shrink-0" /> : <Circle className="w-3.5 h-3.5 text-zinc-400 flex-shrink-0" />}
+                <span>At least 8 characters</span>
+              </div>
+              <div className={`flex items-center gap-2 ${passUpper && passLower ? "text-emerald-700 font-semibold" : "text-zinc-500"}`}>
+                {passUpper && passLower ? <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600 flex-shrink-0" /> : <Circle className="w-3.5 h-3.5 text-zinc-400 flex-shrink-0" />}
+                <span>Both uppercase (A-Z) & lowercase (a-z) letters</span>
+              </div>
+              <div className={`flex items-center gap-2 ${passNumber ? "text-emerald-700 font-semibold" : "text-zinc-500"}`}>
+                {passNumber ? <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600 flex-shrink-0" /> : <Circle className="w-3.5 h-3.5 text-zinc-400 flex-shrink-0" />}
+                <span>At least 1 number (0-9)</span>
+              </div>
+              <div className={`flex items-center gap-2 ${passSpecial ? "text-emerald-700 font-semibold" : "text-zinc-500"}`}>
+                {passSpecial ? <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600 flex-shrink-0" /> : <Circle className="w-3.5 h-3.5 text-zinc-400 flex-shrink-0" />}
+                <span>At least 3 special characters ({passSpecialCount}/3: #$%&*()!@)</span>
+              </div>
             </div>
           )}
 
           <div className="pt-2">
             <button
               type="submit"
-              disabled={loading}
-              className="pill-btn btn-orange w-full py-3 text-sm font-extrabold flex items-center justify-center gap-2 shadow-lg disabled:opacity-50"
+              disabled={loading || (activeTab === 'register' && (!isPasswordValid || !isEmailValid))}
+              className="pill-btn btn-orange w-full py-3 text-sm font-extrabold flex items-center justify-center gap-2 shadow-lg disabled:opacity-50 disabled:cursor-not-allowed"
             >
               {loading ? (
                 <span>Processing...</span>
@@ -169,5 +197,6 @@ export default function JwtModal({ isOpen, onClose, onLoginSuccess }) {
     </div>
   );
 }
+
 
 

@@ -29,13 +29,6 @@ export default function Header({ jwtToken, onOpenLogin, onLogout }) {
         <div className="flex items-center space-x-3">
           {jwtToken ? (
             <div className="flex items-center space-x-2">
-              <div className="flex items-center space-x-2 text-xs font-extrabold text-emerald-800 bg-emerald-100 border-2 border-emerald-300 px-4 py-2 rounded-full shadow-sm">
-                <span className="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse"></span>
-                <span className="flex items-center gap-1">
-                  <UserCheck className="w-3.5 h-3.5 text-emerald-600" />
-                  Active Session ({roleDisplay})
-                </span>
-              </div>
               <button
                 type="button"
                 onClick={onLogout}
@@ -44,6 +37,14 @@ export default function Header({ jwtToken, onOpenLogin, onLogout }) {
                 <LogOut className="w-3.5 h-3.5 text-[#FF5C00]" />
                 <span>Sign Out</span>
               </button>
+
+              <div className="flex items-center space-x-2 text-xs font-extrabold text-emerald-800 bg-emerald-100 border-2 border-emerald-300 px-4 py-2 rounded-full shadow-sm">
+                <span className="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse"></span>
+                <span className="flex items-center gap-1">
+                  <UserCheck className="w-3.5 h-3.5 text-emerald-600" />
+                  {username || 'User'}
+                </span>
+              </div>
             </div>
           ) : (
             <button

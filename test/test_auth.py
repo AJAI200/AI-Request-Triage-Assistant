@@ -73,16 +73,26 @@ async def test_auth_service_verify_password_exception():
 
 def test_register_success():
     import uuid
-    unique_user = f"newuser_{uuid.uuid4().hex[:6]}"
-    response = client.post("/auth/register", json={"username": unique_user, "password": "securepassword123"})
+    unique_user = f"user_{uuid.uuid4().hex[:6]}@gmail.com"
+    response = client.post("/auth/register", json={"username": unique_user, "password": "SecurePassword123#$%"})
     assert response.status_code == 201
     data = response.json()
     assert "access_token" in data
     assert data["token_type"] == "bearer"
     assert data["user"]["username"] == unique_user
 
+def test_register_weak_password():
+    import uuid
+    unique_user = f"user_{uuid.uuid4().hex[:6]}@gmail.com"
+    # Lacks 3 special characters (has 0)
+    response = client.post("/auth/register", json={"username": unique_user, "password": "Password123"})
+    assert response.status_code == 400
+    assert "special characters" in response.json()["detail"].lower()
+
+
 def test_register_duplicate_username():
-    response = client.post("/auth/register", json={"username": "admin", "password": "password123"})
+    response = client.post("/auth/register", json={"username": "admin", "password": "SecurePassword123#$%"})
     assert response.status_code == 400
     assert response.json()["detail"] == "Username already registered"
+
 
