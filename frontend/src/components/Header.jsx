@@ -29,15 +29,6 @@ export default function Header({ jwtToken, onOpenLogin, onLogout }) {
         <div className="flex items-center space-x-3">
           {jwtToken ? (
             <div className="flex items-center space-x-2">
-              <button
-                type="button"
-                onClick={onLogout}
-                className="text-xs font-extrabold text-[#2D1F17] bg-white hover:bg-[#FFF4E5] border-2 border-[#FFE0B2] px-4 py-2 rounded-full transition-all duration-150 flex items-center gap-1.5 active:scale-95 shadow-sm hover:border-[#FF5C00]"
-              >
-                <LogOut className="w-3.5 h-3.5 text-[#FF5C00]" />
-                <span>Sign Out</span>
-              </button>
-
               <div className="flex items-center space-x-2 text-xs font-extrabold text-emerald-800 bg-emerald-100 border-2 border-emerald-300 px-4 py-2 rounded-full shadow-sm">
                 <UserCheck className="w-3.5 h-3.5 text-emerald-600 flex-shrink-0" />
                 <span className="uppercase text-[10px] font-black tracking-wider px-1.5 py-0.5 rounded bg-emerald-200/80 text-emerald-900 border border-emerald-300/50">
@@ -46,6 +37,15 @@ export default function Header({ jwtToken, onOpenLogin, onLogout }) {
                 <span className="font-bold">{username || 'User'}</span>
                 <span className="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse flex-shrink-0"></span>
               </div>
+
+              <button
+                type="button"
+                onClick={onLogout}
+                className="text-xs font-extrabold text-[#2D1F17] bg-white hover:bg-[#FFF4E5] border-2 border-[#FFE0B2] px-4 py-2 rounded-full transition-all duration-150 flex items-center gap-1.5 active:scale-95 shadow-sm hover:border-[#FF5C00]"
+              >
+                <LogOut className="w-3.5 h-3.5 text-[#FF5C00]" />
+                <span>Sign Out</span>
+              </button>
             </div>
           ) : (
             <button
