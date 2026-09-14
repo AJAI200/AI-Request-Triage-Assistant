@@ -20,7 +20,7 @@ class JWTAuthMiddleware(BaseHTTPMiddleware):
         path = request.url.path
 
         # Bypass public static assets, devtools probes, and auth endpoints
-        if path in PUBLIC_PATHS or path.startswith("/static/") or path.startswith("/assets/") or path.startswith("/.well-known/"):
+        if path in PUBLIC_PATHS or path.startswith("/assets/") or path.startswith("/.well-known/"):
             response = await call_next(request)
             process_time_ms = round((time.time() - start_time) * 1000, 2)
             response.headers["X-Process-Time"] = f"{process_time_ms}ms"

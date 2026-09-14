@@ -1,6 +1,6 @@
 import logging
 import time
-from fastapi import APIRouter, Depends, HTTPException, Query, Request, status
+from fastapi import APIRouter, Depends, HTTPException, Query, status
 from typing import List
 from sqlalchemy.ext.asyncio import AsyncSession
 from src.models.base import get_async_db
@@ -16,7 +16,6 @@ router = APIRouter(tags=["Triage"])
 @router.post("/triage", response_model=TriageResponseDTO, status_code=status.HTTP_201_CREATED)
 async def create_triage(
     payload: TriageRequestDTO,
-    request: Request,
     db: AsyncSession = Depends(get_async_db),
     triage_repo: TriageRepository = Depends(get_triage_repository)
 ):
