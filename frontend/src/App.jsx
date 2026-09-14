@@ -169,6 +169,9 @@ export default function App() {
 
   const handleLogout = () => {
     logout();
+    setTriageResult(null);
+    setRequestText("");
+    setSelectedMockIdx(null);
     showToast("Signed out. Session cleared.");
   };
 
@@ -184,7 +187,7 @@ export default function App() {
         const resultsEl = document.getElementById("results-section");
         if (resultsEl) {
           resultsEl.scrollIntoView({ behavior: "smooth", block: "start" });
-          gsap.fromTo(resultsEl, 
+          gsap.fromTo(resultsEl,
             { y: 30, opacity: 0 },
             { y: 0, opacity: 1, duration: 0.7, ease: "power3.out" }
           );
@@ -279,7 +282,7 @@ export default function App() {
 
   return (
     <div ref={mainRef} className="min-h-screen flex flex-col justify-between selection:bg-[#FF5C00] selection:text-white relative bg-[#FFF8EE]">
-      
+
       {/* Custom Cursor */}
       <CustomCursor />
 
@@ -290,7 +293,7 @@ export default function App() {
       <canvas ref={canvasRef} className="fixed inset-0 pointer-events-none z-0 opacity-60"></canvas>
 
       {/* Header Component */}
-      <div className="gsap-header relative z-10">
+      <div className="gsap-header sticky top-0 z-50">
         <Header
           jwtToken={jwtToken}
           onOpenLogin={() => setIsModalOpen(true)}
@@ -300,7 +303,7 @@ export default function App() {
 
       {/* Main Container */}
       <main className="max-w-4xl w-full mx-auto px-4 py-8 flex-1 space-y-8 relative z-10">
-        
+
         {/* Input Section */}
         <div className="gsap-input-section">
           <TriageInput
