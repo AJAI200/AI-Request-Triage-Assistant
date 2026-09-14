@@ -6,7 +6,6 @@ from src.models.category import Category
 from src.models.owner import Owner
 from src.models.user import User
 from src.models.prompt_template import PromptTemplate
-from src.agents.prompts import CLASSIFY_ROUTE_PROMPT, DRAFT_RESPONSE_PROMPT
 
 logger = logging.getLogger("triage_assistant.migrations")
 
@@ -71,27 +70,6 @@ async def seed_initial_data():
         if user_res.scalar_one_or_none() is None:
             hashed = _hash_pwd("password123")
             session.add(User(username="admin", hashed_password=hashed, role="admin"))
-
-        # Seed Prompt Templates
-        p1_stmt = select(PromptTemplate).where(PromptTemplate.name == "CLASSIFY_ROUTE_PROMPT")
-        p1_res = await session.execute(p1_stmt)
-        if p1_res.scalar_one_or_none() is None:
-            session.add(PromptTemplate(
-                name="CLASSIFY_ROUTE_PROMPT",
-                template_text=CLASSIFY_ROUTE_PROMPT,
-                version=1,
-                is_active=True
-            ))
-
-        p2_stmt = select(PromptTemplate).where(PromptTemplate.name == "DRAFT_RESPONSE_PROMPT")
-        p2_res = await session.execute(p2_stmt)
-        if p2_res.scalar_one_or_none() is None:
-            session.add(PromptTemplate(
-                name="DRAFT_RESPONSE_PROMPT",
-                template_text=DRAFT_RESPONSE_PROMPT,
-                version=1,
-                is_active=True
-            ))
 
         await session.commit()
         logger.info("Database migration & initial data seeding completed successfully.")

@@ -340,6 +340,7 @@ export default function App() {
           <TriageResult
             result={triageResult}
             onCopyToast={showToast}
+            jwtToken={jwtToken}
           />
         )}
 

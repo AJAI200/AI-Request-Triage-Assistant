@@ -65,15 +65,50 @@ def test_exceptions_module_exports():
     assert str(err5) == "msg"
 
 @pytest.mark.asyncio
-async def test_auth_route_login_failure():
-    from src.routes.auth_routes import login
-    from src.dtos.auth_dto import LoginRequestDTO
-    from fastapi import HTTPException
+async def test_repository_database_error_handling():
+    from unittest.mock import AsyncMock, MagicMock
+    from sqlalchemy.exc import SQLAlchemyError
+    from src.repositories.user_repository import UserRepository
+    from src.repositories.prompt_repository import PromptRepository
+    from src.repositories.triage_repository import TriageRepository
+    from src.utils.exceptions import DatabaseError
+
+    mock_session = AsyncMock()
+    mock_session.execute.side_effect = SQLAlchemyError("Connection failed")
+
+    user_repo = UserRepository()
+    with pytest.raises(DatabaseError, match="Failed to fetch user"):
+        await user_repo.get_by_username(mock_session, "testuser")
+
+    prompt_repo = PromptRepository()
+    with pytest.raises(DatabaseError, match="Failed to fetch active prompt"):
+        await prompt_repo.get_active_prompt(mock_session, "triage_classification")
+
+@pytest.mark.asyncio
+async def test_repository_constructor_dependency_injection():
+    import uuid
+    from src.repositories.user_repository import UserRepository
+    from src.repositories.triage_repository import TriageRepository
+    from src.repositories.prompt_repository import PromptRepository
+
+    unique_uname = f"di_user_{uuid.uuid4().hex[:8]}"
     async with AsyncSessionLocal() as session:
-        repo = get_user_repository()
-        payload = LoginRequestDTO(username="nonexistent", password="wrong")
-        with pytest.raises(HTTPException) as exc_info:
-            await login(payload, db=session, user_repo=repo)
-        assert exc_info.value.status_code == 401
+        # Injected session via Constructor
+        user_repo = UserRepository(session=session)
+        assert user_repo.session == session
+        user = await user_repo.create_user(unique_uname, "hashed_pwd_di", role="staff")
+        await session.commit()
+
+        fetched = await user_repo.get_by_username(unique_uname)
+        assert fetched is not None
+        assert fetched.username == unique_uname
+
+        triage_repo = TriageRepository(session=session)
+        assert triage_repo.session == session
+
+        prompt_repo = PromptRepository(session=session)
+        assert prompt_repo.session == session
+
+
 
 

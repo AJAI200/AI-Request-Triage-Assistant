@@ -21,7 +21,8 @@ async def test_call_rest_success():
 
     with patch("httpx.AsyncClient.post", return_value=mock_response):
         result = await _call_rest("prompt", "gemini-flash-lite-latest", "fake_key")
-        assert result == "REST response"
+        assert result["text"] == "REST response"
+        assert "prompt_tokens" in result
 
 @pytest.mark.asyncio
 async def test_call_rest_status_error():

@@ -75,3 +75,20 @@ export async function submitTriage(text, jwtToken, signal) {
   );
   return res;
 }
+
+export async function approveTriage(requestId, finalText, jwtToken, signal) {
+  const res = await apiFetch(
+    `/triage/${requestId}/approve`,
+    {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${jwtToken}`,
+      },
+      body: JSON.stringify({ final_text: finalText }),
+      signal,
+    },
+    15000
+  );
+  return res;
+}
