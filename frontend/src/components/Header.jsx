@@ -10,7 +10,13 @@ export default function Header({ jwtToken: propJwt, onOpenLogin: propOpenLogin, 
   const role = user?.role || 'user';
 
   const handleOpenLogin = auth?.setIsModalOpen ? () => auth.setIsModalOpen(true) : propOpenLogin;
-  const handleLogout = auth?.logout || propLogout;
+  const handleLogout = () => {
+    if (propLogout) {
+      propLogout();
+    } else if (auth?.logout) {
+      auth.logout();
+    }
+  };
 
   return (
     <header className="sticky top-0 z-40 bg-[#FFF8EE]/90 backdrop-blur-md border-b-2 border-[#FFE0B2]">
