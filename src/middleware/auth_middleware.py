@@ -11,7 +11,7 @@ from src.settings import settings
 
 logger = logging.getLogger("triage_assistant.auth_middleware")
 
-PUBLIC_PATHS = {"/", "/favicon.ico", "/docs", "/openapi.json", "/auth/login", "/auth/register", "/redoc"}
+PUBLIC_PATHS = {"/", "/favicon.ico", "/favicon.svg", "/docs", "/openapi.json", "/auth/login", "/auth/register", "/redoc"}
 
 class JWTAuthMiddleware(BaseHTTPMiddleware):
     async def dispatch(self, request: Request, call_next):
@@ -21,7 +21,7 @@ class JWTAuthMiddleware(BaseHTTPMiddleware):
 
         try:
             # Bypass public static assets, devtools probes, and auth endpoints
-            if path in PUBLIC_PATHS or path.startswith("/assets/") or path.startswith("/.well-known/"):
+            if path in PUBLIC_PATHS or path.startswith("/assets/") or path.startswith("/.well-known/") or path.startswith("/favicon"):
                 response = await call_next(request)
                 process_time_ms = round((time.time() - start_time) * 1000, 2)
                 response.headers["X-Process-Time"] = f"{process_time_ms}ms"
