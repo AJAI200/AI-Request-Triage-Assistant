@@ -1,7 +1,7 @@
 import pytest
 import httpx
 from unittest.mock import patch, AsyncMock, MagicMock
-from src.agents.llm_client import call_llm, _call_rest, _call_sdk
+from src.llm.llm_client import call_llm, _call_rest, _call_sdk
 from src.utils.exceptions import LLMClientError
 from src.settings import settings
 
@@ -43,7 +43,7 @@ async def test_call_llm_retry_on_transient_error():
         "Retried Success Response"
     ])
 
-    with patch("src.agents.llm_client._call_sdk", mock_sdk):
+    with patch("src.llm.llm_client._call_sdk", mock_sdk):
         result = await call_llm("prompt", retries=2, delay=0.1)
         assert result == "Retried Success Response"
 
@@ -71,9 +71,9 @@ async def test_call_llm_sdk_fallback_to_rest():
     mock_sdk = AsyncMock(side_effect=RuntimeError("SDK Non-transient Error"))
     mock_rest = AsyncMock(return_value="REST Fallback Response")
 
-    with patch("src.agents.llm_client.HAS_GENAI_SDK", True):
-        with patch("src.agents.llm_client._call_sdk", mock_sdk):
-            with patch("src.agents.llm_client._call_rest", mock_rest):
+    with patch("src.llm.llm_client.HAS_GENAI_SDK", True):
+        with patch("src.llm.llm_client._call_sdk", mock_sdk):
+            with patch("src.llm.llm_client._call_rest", mock_rest):
                 result = await call_llm("prompt", retries=1)
                 assert result == "REST Fallback Response"
 
@@ -81,7 +81,8 @@ async def test_call_llm_sdk_fallback_to_rest():
 async def test_call_llm_retry_exhaustion():
     mock_sdk = AsyncMock(side_effect=RuntimeError("503 UNAVAILABLE"))
     
-    with patch("src.agents.llm_client.HAS_GENAI_SDK", True):
-        with patch("src.agents.llm_client._call_sdk", mock_sdk):
+    with patch("src.llm.llm_client.HAS_GENAI_SDK", True):
+        with patch("src.llm.llm_client._call_sdk", mock_sdk):
             with pytest.raises(LLMClientError, match="Failed to obtain LLM response after 2 attempts"):
                 await call_llm("prompt", retries=2, delay=0.01)
+

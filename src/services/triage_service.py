@@ -3,7 +3,7 @@ import logging
 from typing import List, Optional
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from src.agents.triage_agent import classify_and_route, draft_response
+from src.llm.triage_pipeline import classify_and_route, draft_response
 from src.repositories.triage_repository import TriageRepository, get_triage_repository
 from src.models.base import AsyncSessionLocal
 from src.utils.exceptions import JSONParseError, ValidationError, LLMClientError
@@ -84,11 +84,16 @@ async def run_triage(
 
     except (JSONParseError, ValidationError, LLMClientError, ValueError) as exc:
         # Graceful degradation for expected LLM output & parsing failures
-        await session.rollback()
         await log_error_to_db(exc, session=session, process_time_ms=process_time_ms)
         if req is not None:
-            req.status = "needs_review"
-            await session.commit()
+            try:
+                refreshed_req = await triage_repo.get_by_id(session, req.id)
+                if refreshed_req:
+                    refreshed_req.status = "needs_review"
+                    await session.commit()
+            except Exception as update_err:
+                logger.error(f"Failed to update request status to needs_review: {update_err}")
+
             logger.debug("Exiting run_triage with status needs_review")
             return {
                 "id": req.id,
@@ -101,7 +106,6 @@ async def run_triage(
 
     except Exception as exc:
         # Unexpected infrastructure/programming bug: rollback, log error, and raise 500
-        await session.rollback()
         await log_error_to_db(exc, session=session, process_time_ms=process_time_ms)
         raise exc
 

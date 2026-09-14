@@ -1,6 +1,7 @@
 from typing import Optional
 from sqlalchemy.ext.asyncio import AsyncSession
-from src.agents.llm_client import call_llm
+from src.models.base import AsyncSessionLocal
+from src.llm.llm_client import call_llm
 from src.repositories.prompt_repository import get_prompt_repository, PromptRepository
 from src.utils.json_parser import parse_llm_json
 from src.utils.validators import validate_classification
@@ -12,11 +13,13 @@ async def classify_and_route(
 ) -> dict:
     prompt_repo = prompt_repo or get_prompt_repository()
     
-    if session:
-        prompt_template = await prompt_repo.get_active_prompt(session, "CLASSIFY_ROUTE_PROMPT")
-    else:
-        from src.agents.prompts import CLASSIFY_ROUTE_PROMPT
-        prompt_template = CLASSIFY_ROUTE_PROMPT
+    own_session = session is None
+    db_session = session or AsyncSessionLocal()
+    try:
+        prompt_template = await prompt_repo.get_active_prompt(db_session, "CLASSIFY_ROUTE_PROMPT")
+    finally:
+        if own_session:
+            await db_session.close()
 
     prompt = prompt_template.format(text=raw_text)
     llm_res = await call_llm(prompt)
@@ -45,11 +48,13 @@ async def draft_response(
 ) -> dict:
     prompt_repo = prompt_repo or get_prompt_repository()
     
-    if session:
-        prompt_template = await prompt_repo.get_active_prompt(session, "DRAFT_RESPONSE_PROMPT")
-    else:
-        from src.agents.prompts import DRAFT_RESPONSE_PROMPT
-        prompt_template = DRAFT_RESPONSE_PROMPT
+    own_session = session is None
+    db_session = session or AsyncSessionLocal()
+    try:
+        prompt_template = await prompt_repo.get_active_prompt(db_session, "DRAFT_RESPONSE_PROMPT")
+    finally:
+        if own_session:
+            await db_session.close()
 
     prompt = prompt_template.format(
         text=raw_text,

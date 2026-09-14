@@ -1,5 +1,5 @@
 import pytest
-from src.agents.triage_agent import classify_and_route, draft_response
+from src.llm.triage_pipeline import classify_and_route, draft_response
 from src.utils.validators import validate_classification
 from test.fixtures.mock_requests import MOCK_REQUESTS, UNLISTED_CUSTOM_REQUEST
 
