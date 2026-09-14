@@ -11,7 +11,7 @@ from src.settings import settings
 
 logger = logging.getLogger("triage_assistant.auth_middleware")
 
-PUBLIC_PATHS = {"/", "/favicon.ico", "/docs", "/openapi.json", "/auth/login", "/redoc"}
+PUBLIC_PATHS = {"/", "/favicon.ico", "/docs", "/openapi.json", "/auth/login", "/auth/register", "/redoc"}
 
 class JWTAuthMiddleware(BaseHTTPMiddleware):
     async def dispatch(self, request: Request, call_next):

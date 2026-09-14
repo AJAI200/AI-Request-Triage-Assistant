@@ -162,16 +162,16 @@ export default function App() {
     };
   }, []);
 
-  const handleLoginSuccess = (token) => {
+  const handleLoginSuccess = (token, customMsg) => {
     localStorage.setItem("jwt_token", token);
     setJwtToken(token);
-    showToast("JWT Access Token generated successfully!");
+    showToast(customMsg || "Signed in successfully!");
   };
 
   const handleLogout = () => {
     localStorage.removeItem("jwt_token");
     setJwtToken("");
-    showToast("Signed out. JWT Token cleared.");
+    showToast("Signed out. Session cleared.");
   };
 
   const showToast = (msg) => {
@@ -201,7 +201,7 @@ export default function App() {
 
     if (!jwtToken) {
       setIsModalOpen(true);
-      showToast("Please sign in with JWT credentials first!");
+      showToast("Please sign in or create an account first!");
       return;
     }
 

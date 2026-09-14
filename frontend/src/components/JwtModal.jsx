@@ -1,8 +1,9 @@
 import React, { useState } from 'react';
-import { KeyRound, X, AlertCircle, Sparkles, LogIn } from 'lucide-react';
-import { login } from '../services/api';
+import { KeyRound, X, AlertCircle, Sparkles, LogIn, UserPlus } from 'lucide-react';
+import { login, register } from '../services/api';
 
 export default function JwtModal({ isOpen, onClose, onLoginSuccess }) {
+  const [activeTab, setActiveTab] = useState('login'); // 'login' | 'register'
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
@@ -16,17 +17,18 @@ export default function JwtModal({ isOpen, onClose, onLoginSuccess }) {
     setError(null);
 
     try {
-      const res = await login(username, password);
+      const authFn = activeTab === 'login' ? login : register;
+      const res = await authFn(username.trim(), password);
 
       if (res.ok) {
         const data = await res.json();
-        onLoginSuccess(data.access_token);
+        onLoginSuccess(data.access_token, activeTab === 'register' ? 'Account created successfully!' : 'Signed in successfully!');
         onClose();
         setLoading(false);
         return;
       } else {
         const errData = await res.json().catch(() => ({}));
-        setError(errData.detail || `Authentication failed (Status ${res.status})`);
+        setError(errData.detail || `${activeTab === 'login' ? 'Authentication' : 'Registration'} failed (Status ${res.status})`);
       }
     } catch (err) {
       setError(err.message || 'Authentication failed');
@@ -36,6 +38,7 @@ export default function JwtModal({ isOpen, onClose, onLoginSuccess }) {
   };
 
   const fillDemoCredentials = () => {
+    setActiveTab('login');
     setUsername('admin');
     setPassword('password123');
   };
@@ -53,12 +56,40 @@ export default function JwtModal({ isOpen, onClose, onLoginSuccess }) {
               <KeyRound className="w-5 h-5" />
             </div>
             <div>
-              <h2 className="text-base font-extrabold text-[#2D1F17]">JWT User Authentication</h2>
-              <p className="text-xs text-[#7A6B63]">Sign in to generate a Bearer Token</p>
+              <h2 className="text-base font-extrabold text-[#2D1F17]">User Authentication</h2>
+              <p className="text-xs text-[#7A6B63]">Sign in or create an account to access the platform</p>
             </div>
           </div>
           <button onClick={onClose} className="text-[#7A6B63] hover:text-[#2D1F17]">
             <X className="w-5 h-5" />
+          </button>
+        </div>
+
+        {/* Tab Navigation */}
+        <div className="grid grid-cols-2 p-1 bg-[#FFF8EE] border border-[#FFE0B2] rounded-2xl">
+          <button
+            type="button"
+            onClick={() => { setActiveTab('login'); setError(null); }}
+            className={`py-2 text-xs font-extrabold rounded-xl transition-all duration-150 flex items-center justify-center gap-1.5 ${
+              activeTab === 'login'
+                ? "bg-white text-[#FF5C00] shadow-sm border border-[#FFE0B2]"
+                : "text-[#7A6B63] hover:text-[#2D1F17]"
+            }`}
+          >
+            <LogIn className="w-3.5 h-3.5" />
+            <span>Sign In</span>
+          </button>
+          <button
+            type="button"
+            onClick={() => { setActiveTab('register'); setError(null); }}
+            className={`py-2 text-xs font-extrabold rounded-xl transition-all duration-150 flex items-center justify-center gap-1.5 ${
+              activeTab === 'register'
+                ? "bg-white text-[#FF5C00] shadow-sm border border-[#FFE0B2]"
+                : "text-[#7A6B63] hover:text-[#2D1F17]"
+            }`}
+          >
+            <UserPlus className="w-3.5 h-3.5" />
+            <span>Create Account</span>
           </button>
         </div>
 
@@ -80,7 +111,7 @@ export default function JwtModal({ isOpen, onClose, onLoginSuccess }) {
               value={username}
               onChange={(e) => setUsername(e.target.value)}
               required
-              placeholder="Enter username"
+              placeholder="Enter your username"
               className="w-full bg-[#FFF8EE] border-2 border-[#FFE0B2] rounded-xl px-4 py-2.5 text-sm font-semibold text-[#2D1F17] placeholder-zinc-400"
             />
           </div>
@@ -94,12 +125,12 @@ export default function JwtModal({ isOpen, onClose, onLoginSuccess }) {
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               required
-              placeholder="Enter password"
+              placeholder="Enter your password"
               className="w-full bg-[#FFF8EE] border-2 border-[#FFE0B2] rounded-xl px-4 py-2.5 text-sm font-semibold text-[#2D1F17] placeholder-zinc-400"
             />
           </div>
 
-          {isDev && (
+          {isDev && activeTab === 'login' && (
             <div className="flex items-center justify-between text-xs text-[#7A6B63] pt-1">
               <button
                 type="button"
@@ -119,11 +150,16 @@ export default function JwtModal({ isOpen, onClose, onLoginSuccess }) {
               className="pill-btn btn-orange w-full py-3 text-sm font-extrabold flex items-center justify-center gap-2 shadow-lg disabled:opacity-50"
             >
               {loading ? (
-                <span>Signing In...</span>
-              ) : (
+                <span>Processing...</span>
+              ) : activeTab === 'login' ? (
                 <>
                   <LogIn className="w-4 h-4" />
-                  <span>Sign In & Generate JWT</span>
+                  <span>Sign In</span>
+                </>
+              ) : (
+                <>
+                  <UserPlus className="w-4 h-4" />
+                  <span>Create Account</span>
                 </>
               )}
             </button>
@@ -133,4 +169,5 @@ export default function JwtModal({ isOpen, onClose, onLoginSuccess }) {
     </div>
   );
 }
+
 

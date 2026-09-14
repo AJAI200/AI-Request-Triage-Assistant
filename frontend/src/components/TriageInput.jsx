@@ -162,7 +162,7 @@ export default function TriageInput({
       <div className="flex items-center justify-between pt-2">
         <span className="text-xs font-semibold text-[#7A6B63] hidden sm:inline-flex items-center gap-1.5">
           <ShieldCheck className="w-4 h-4 text-[#FF5C00]" />
-          <span>Protected via JWT Authorization Header</span>
+          <span>Secured Session Authentication</span>
         </span>
         <button
           type="button"

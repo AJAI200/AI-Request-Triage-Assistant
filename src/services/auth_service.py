@@ -88,3 +88,41 @@ async def authenticate_user(
     finally:
         if own_session:
             await session.close()
+
+async def register_user(
+    username: str,
+    password: str,
+    session: Optional[AsyncSession] = None,
+    user_repo: Optional[UserRepository] = None
+) -> dict:
+    logger.debug("Entering register_user")
+    own_session = session is None
+    session = session or AsyncSessionLocal()
+    user_repo = user_repo or get_user_repository()
+
+    try:
+        existing = await user_repo.get_by_username(session, username)
+        if existing:
+            logger.warning(f"Registration failed: username {username} already exists")
+            raise AuthenticationError("Username already registered")
+
+        hashed_pw = hash_password(password)
+        user = await user_repo.create_user(session, username=username, hashed_password=hashed_pw, role="user")
+        await session.commit()
+        await session.refresh(user)
+
+        token = create_access_token(user.id, user.username, user.role)
+        logger.debug("Exiting register_user successfully")
+        return {
+            "access_token": token,
+            "token_type": "bearer",
+            "user": {
+                "id": user.id,
+                "username": user.username,
+                "role": user.role
+            }
+        }
+    finally:
+        if own_session:
+            await session.close()
+

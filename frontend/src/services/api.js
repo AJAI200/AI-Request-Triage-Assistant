@@ -44,6 +44,21 @@ export async function login(username, password, signal) {
   return res;
 }
 
+export async function register(username, password, signal) {
+  const res = await apiFetch(
+    '/auth/register',
+    {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ username, password }),
+      signal,
+    },
+    10000
+  );
+  return res;
+}
+
+
 export async function submitTriage(text, jwtToken, signal) {
   const res = await apiFetch(
     '/triage',

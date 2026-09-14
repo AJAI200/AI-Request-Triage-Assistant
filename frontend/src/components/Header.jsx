@@ -33,7 +33,7 @@ export default function Header({ jwtToken, onOpenLogin, onLogout }) {
                 <span className="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse"></span>
                 <span className="flex items-center gap-1">
                   <UserCheck className="w-3.5 h-3.5 text-emerald-600" />
-                  JWT Active ({roleDisplay})
+                  Active Session ({roleDisplay})
                 </span>
               </div>
               <button
@@ -52,7 +52,7 @@ export default function Header({ jwtToken, onOpenLogin, onLogout }) {
               className="pill-btn btn-orange text-xs font-extrabold px-5 py-2.5 flex items-center gap-2 shadow-[0_8px_20px_rgba(255,92,0,0.25)] active:scale-95"
             >
               <KeyRound className="w-4 h-4" />
-              <span>Sign In (JWT Auth)</span>
+              <span>Sign In / Register</span>
             </button>
           )}
         </div>

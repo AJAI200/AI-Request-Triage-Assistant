@@ -70,3 +70,19 @@ async def test_auth_service_verify_password_exception():
 
     result = await authenticate_user("admin", "password123")
     assert result["user"]["username"] == "admin"
+
+def test_register_success():
+    import uuid
+    unique_user = f"newuser_{uuid.uuid4().hex[:6]}"
+    response = client.post("/auth/register", json={"username": unique_user, "password": "securepassword123"})
+    assert response.status_code == 201
+    data = response.json()
+    assert "access_token" in data
+    assert data["token_type"] == "bearer"
+    assert data["user"]["username"] == unique_user
+
+def test_register_duplicate_username():
+    response = client.post("/auth/register", json={"username": "admin", "password": "password123"})
+    assert response.status_code == 400
+    assert response.json()["detail"] == "Username already registered"
+
