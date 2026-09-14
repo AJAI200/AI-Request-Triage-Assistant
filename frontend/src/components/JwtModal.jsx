@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { KeyRound, X, AlertCircle, LogIn, UserPlus, CheckCircle2, Circle } from 'lucide-react';
+import { KeyRound, X, AlertCircle, LogIn, UserPlus, CheckCircle2, Circle, Eye, EyeOff } from 'lucide-react';
 import { login, register } from '../services/api';
 
 const EMAIL_REGEX = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
@@ -8,6 +8,7 @@ export default function JwtModal({ isOpen, onClose, onLoginSuccess }) {
   const [activeTab, setActiveTab] = useState('login'); // 'login' | 'register'
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
 
@@ -138,15 +139,30 @@ export default function JwtModal({ isOpen, onClose, onLoginSuccess }) {
             <label className="block text-xs font-bold uppercase tracking-wider text-[#7A6B63] mb-1.5">
               Password
             </label>
-            <input
-              type="password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              required
-              placeholder="Enter your password"
-              className="w-full bg-[#FFF8EE] border-2 border-[#FFE0B2] rounded-xl px-4 py-2.5 text-sm font-semibold text-[#2D1F17] placeholder-zinc-400"
-            />
+            <div className="relative">
+              <input
+                type={showPassword ? "text" : "password"}
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                required
+                placeholder="Enter your password"
+                className="w-full bg-[#FFF8EE] border-2 border-[#FFE0B2] rounded-xl px-4 py-2.5 pr-11 text-sm font-semibold text-[#2D1F17] placeholder-zinc-400"
+              />
+              <button
+                type="button"
+                onClick={() => setShowPassword(!showPassword)}
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-[#7A6B63] hover:text-[#FF5C00] p-1 transition-colors"
+                tabIndex={-1}
+              >
+                {showPassword ? (
+                  <EyeOff className="w-4 h-4" />
+                ) : (
+                  <Eye className="w-4 h-4" />
+                )}
+              </button>
+            </div>
           </div>
+
 
           {/* Real-time Password Requirements Checklist (Register Mode) */}
           {activeTab === 'register' && (

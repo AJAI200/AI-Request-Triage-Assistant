@@ -39,11 +39,12 @@ export default function Header({ jwtToken, onOpenLogin, onLogout }) {
               </button>
 
               <div className="flex items-center space-x-2 text-xs font-extrabold text-emerald-800 bg-emerald-100 border-2 border-emerald-300 px-4 py-2 rounded-full shadow-sm">
-                <span className="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse"></span>
-                <span className="flex items-center gap-1">
-                  <UserCheck className="w-3.5 h-3.5 text-emerald-600" />
-                  {username || 'User'}
+                <UserCheck className="w-3.5 h-3.5 text-emerald-600 flex-shrink-0" />
+                <span className="uppercase text-[10px] font-black tracking-wider px-1.5 py-0.5 rounded bg-emerald-200/80 text-emerald-900 border border-emerald-300/50">
+                  {role}
                 </span>
+                <span className="font-bold">{username || 'User'}</span>
+                <span className="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse flex-shrink-0"></span>
               </div>
             </div>
           ) : (
